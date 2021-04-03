@@ -25,13 +25,12 @@ app.use(cookieParser());
 app.post("/login", (req, res) => {
     let username = req.body.username;
     let password = req.body.password;
-    console.log("-------------", req.cookies)
     Users
         .where("username", username)
         .fetch()
         .then(user => {
             // TODO use user set password
-            if (password === "1") {
+            if (user.attributes.password === String(password)) {
                 let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
                 res.cookie("authToken", token, { sameSite: "strict" , maxAge: 604800000 }).send("login successful");
             } else {
@@ -55,7 +54,7 @@ app.post("/signup", (req, res) => {
         .catch(error => {
             new Users({
                 username: username,
-                password: password
+                password: String(password)
             })
                 .save()
                 .then(newUser => {
