@@ -2,6 +2,7 @@ const express = require("express");
 const Chats = require("../models/chats");
 const Users = require("../models/users");
 const router = express.Router();
+const { encryptData, decryptData } = require("../functions/encryption");
 
 router
     .route("/:channelID")
@@ -19,7 +20,7 @@ router
                         created_at
                     }
                 });
-                res.status(200).json(messages);
+                res.status(200).json(encryptData(messages));
             })
             .catch(error => {
                 console.error("...ERROR... Chats GET all messages =>", error);
@@ -27,11 +28,12 @@ router
             })
     })
     .post((req, res) => {
+        const { user_id, message } = decryptData(req.body.data);
         new Chats({
-            user_id: req.body.user_id,
+            user_id,
             channel_id: req.params.channelID,
             created_at: new Date(),
-            message: req.body.message
+            message
         })
             .save()
             .then(newComment => {
@@ -46,7 +48,7 @@ router
                             message,
                             created_at
                         }
-                        res.status(200).json(comment);
+                        res.status(200).json(encryptData(comment));
                     })
             })
             .catch(error => {

@@ -10,6 +10,7 @@ const chatsRoute = require("./routes/chats");
 const Users = require("./models/users");
 const Joined = require("./models/joined");
 const authorize = require("./middleware/authorize");
+const { decryptData, encryptData } = require("./functions/encryption");
 
 // variables
 const PORT = process.env.PORT;
@@ -25,16 +26,16 @@ app.use(cookieParser());
 
 // enpoints / routes
 app.post("/login", (req, res) => {
-    let username = req.body.username;
-    let password = req.body.password;
+    const data = decryptData(req.body.data);
+    let username = data.username;
+    let password = data.password;
     Users
         .where("username", username)
         .fetch()
         .then(user => {
-            // TODO use user set password
             if (user.attributes.password === String(password)) {
                 let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
-                res.cookie("authToken", token, { sameSite: "strict", maxAge: 604800000 }).send("login successful");
+                res.cookie("authToken", token, { sameSite: "strict", maxAge: 604800000 }).json(encryptData({ message: "success" }));
             } else {
                 throw new Error("failed login.");
             }
@@ -45,8 +46,9 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/signup", (req, res) => {
-    const username = req.body.username;
-    const password = req.body.password;
+    const data = JSON.parse(decryptData(req.body.data));
+    const username = data.username;
+    const password = data.password;
     Users
         .where("username", username)
         .fetch()

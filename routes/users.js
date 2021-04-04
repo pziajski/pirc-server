@@ -2,6 +2,7 @@ const express = require("express");
 const Users = require("../models/users");
 const Joined = require("../models/joined");
 const router = express.Router();
+const { encryptData, decryptData } = require("../functions/encryption");
 
 router
     .route("/")
@@ -9,7 +10,7 @@ router
         Users
             .fetchAll()
             .then(users => {
-                res.status(200).json(users);
+                res.status(200).json(encryptData(users));
             });
     });
 
@@ -24,7 +25,7 @@ router
                     id: user.attributes.id,
                     username: user.attributes.username
                 }
-                res.status(200).json(userInfo);
+                res.status(200).json(encryptData(userInfo));
             })
             .catch(error => {
                 console.error("...ERROR... Users GET certain user ->", error);
@@ -43,7 +44,7 @@ router
                     .where("user_id", user.attributes.id)
                     .fetchAll({ withRelated: ["channel"] })
                     .then(channelsJoined => {
-                        res.status(200).json(channelsJoined);
+                        res.status(200).json(encryptData(channelsJoined));
                     })
                     .catch(error => {
                         console.error("...Error... Users GET channels joined ->", error);

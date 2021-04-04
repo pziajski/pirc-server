@@ -3,6 +3,7 @@ const Channels = require("../models/channels");
 const Joined = require("../models/joined");
 const Users = require("../models/users");
 const router = express.Router();
+const { encryptData, decryptData } = require("../functions/encryption");
 
 router
     .route("/")
@@ -10,12 +11,13 @@ router
         Channels
             .fetchAll()
             .then(channels => {
-                res.status(200).json(channels);
+                res.status(200).json(encryptData(channels));
             });
     })
     .post((req, res) => {
+        const { name } = decryptData(req.body.data);
         new Channels({
-            name: req.body.name
+            name
         })
             .save()
             .then(newChannel => {
@@ -29,7 +31,7 @@ router
                         })
                             .save()
                             .then(() => {
-                                res.status(201).json(newChannel);
+                                res.status(201).json(encryptData(newChannel));
                             })
                     })
             })
@@ -46,7 +48,7 @@ router
             .where("id", req.params.id)
             .fetch()
             .then(channelData => {
-                res.status(200).json(channelData);
+                res.status(200).json(encryptData(channelData));
             })
             .catch((error) => {
                 console.error("...ERROR... Channels GET channel info =>", error);
@@ -62,7 +64,7 @@ router
             .where("channel_id", req.params.id)
             .fetchAll()
             .then(users => {
-                res.status(200).json(users)
+                res.status(200).json(encryptData(users))
             })
             .catch(error => {
                 console.error("...ERROR... Channels GET channel users =>", error);
@@ -70,13 +72,14 @@ router
             })
     })
     .post((req, res) => {
+        const { user_id } = decryptData(req.body.data)
         new Joined({
-            user_id: req.body.user_id,
+            user_id,
             channel_id: req.params.id
         })
             .save()
             .then(joinedChannel => {
-                res.status(201).json(joinedChannel);
+                res.status(201).json(encryptData(joinedChannel));
             })
             .catch(error => {
                 console.error("...ERROR... Channels POST join channel =>", error);
