@@ -15,6 +15,7 @@ const authorize = require("./middleware/authorize");
 const PORT = process.env.PORT;
 const app = express();
 
+// middleware
 app.use(express.json());
 app.use(cors({
     credentials: true,
@@ -22,6 +23,7 @@ app.use(cors({
 }));
 app.use(cookieParser());
 
+// enpoints / routes
 app.post("/login", (req, res) => {
     let username = req.body.username;
     let password = req.body.password;
@@ -32,7 +34,7 @@ app.post("/login", (req, res) => {
             // TODO use user set password
             if (user.attributes.password === String(password)) {
                 let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
-                res.cookie("authToken", token, { sameSite: "strict" , maxAge: 604800000 }).send("login successful");
+                res.cookie("authToken", token, { sameSite: "strict", maxAge: 604800000 }).send("login successful");
             } else {
                 throw new Error("failed login.");
             }
@@ -59,7 +61,7 @@ app.post("/signup", (req, res) => {
                 .save()
                 .then(newUser => {
                     let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
-                    res.status(200).cookie("authToken", token, { maxAge: 604800000 }).send("login successful");
+                    res.status(200).cookie("authToken", token, { sameSite: "strict", maxAge: 604800000 }).send("login successful");
                     new Joined({
                         user_id: newUser.attributes.id,
                         channel_id: 1
