@@ -1,6 +1,7 @@
 const express = require("express");
 const Channels = require("../models/channels");
 const Joined = require("../models/joined");
+const Users = require("../models/users");
 const router = express.Router();
 
 router
@@ -18,7 +19,19 @@ router
         })
             .save()
             .then(newChannel => {
-                res.status(201).json(newChannel);
+                Users
+                    .where("username", req.body.username)
+                    .fetch()
+                    .then(user => {
+                        new Joined({
+                            user_id: user.attributes.id,
+                            channel_id: newChannel.attributes.id
+                        })
+                            .save()
+                            .then(() => {
+                                res.status(201).json(newChannel);
+                            })
+                    })
             })
             .catch(() => {
                 console.error("...ERROR... Channels POST create new channel =>", error);
@@ -35,12 +48,12 @@ router
             .then(channelData => {
                 res.status(200).json(channelData);
             })
-            .catch(() => {
+            .catch((error) => {
                 console.error("...ERROR... Channels GET channel info =>", error);
                 res.status(404).send("Could not create channel");
             });
     })
-    
+
 
 router
     .route("/:id/users")
