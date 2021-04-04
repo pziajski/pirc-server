@@ -20,7 +20,11 @@ router
             .where("username", req.body.username)
             .fetch()
             .then(user => {
-                res.status(200).json(user);
+                const userInfo = {
+                    id: user.attributes.id,
+                    username: user.attributes.username
+                }
+                res.status(200).json(userInfo);
             })
             .catch(error => {
                 console.error("...ERROR... Users GET certain user ->", error);
@@ -29,18 +33,24 @@ router
     })
 
 router
-    .route("/:id/channels")
+    .route("/channels")
     .get((req, res) => {
-        Joined
-            .where("user_id", req.params.id)
-            .fetchAll({ withRelated: ["channel"] })
-            .then(channelsJoined => {
-                res.status(200).json(channelsJoined);
+        Users
+            .where("username", req.body.username)
+            .fetch()
+            .then(user => {
+                Joined
+                    .where("user_id", user.attributes.id)
+                    .fetchAll({ withRelated: ["channel"] })
+                    .then(channelsJoined => {
+                        res.status(200).json(channelsJoined);
+                    })
+                    .catch(error => {
+                        console.error("...Error... Users GET channels joined ->", error);
+                        res.status(404).send("Could not find user's joined channels.");
+                    })
             })
-            .catch(error => {
-                console.error("...Error... Users GET channels joined ->", error);
-                res.status(404).send("Could not find user's joined channels.");
-            })
+
     })
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const express = require("express");
 const Chats = require("../models/chats");
+const Users = require("../models/users");
 const router = express.Router();
 
 router
@@ -9,7 +10,16 @@ router
             .where("channel_id", req.params.channelID)
             .fetchAll({ withRelated: ["user"] })
             .then(chats => {
-                res.status(200).json(chats);
+                let messages = chats.models.map(item => {
+                    const { created_at, message  } = item.attributes;
+                    const { username } = item.relations.user.attributes;
+                    return {
+                        username,
+                        message,
+                        created_at
+                    }
+                });
+                res.status(200).json(messages);
             })
             .catch(error => {
                 console.error("...ERROR... Chats GET all messages =>", error);
@@ -25,7 +35,19 @@ router
         })
             .save()
             .then(newComment => {
-                res.status(200).json(newComment);
+                const { created_at, message } = newComment.attributes;
+                Users
+                    .where("id", newComment.attributes.user_id)
+                    .fetch()
+                    .then(user => {
+                        const { username } = user.attributes;
+                        const comment = {
+                            username,
+                            message,
+                            created_at
+                        }
+                        res.status(200).json(comment);
+                    })
             })
             .catch(error => {
                 console.error("...ERROR... Chats POST new comment =>", error);
