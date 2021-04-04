@@ -37,7 +37,7 @@ router
             })
             .catch(() => {
                 console.error("...ERROR... Channels POST create new channel =>", error);
-                res.status(404).send("Could not create channel");
+                res.status(404).json(encryptData({ success: false, message: "could not create channel" }));
             });
     });
 
@@ -52,7 +52,7 @@ router
             })
             .catch((error) => {
                 console.error("...ERROR... Channels GET channel info =>", error);
-                res.status(404).send("Could not create channel");
+                res.status(404).json(encryptData({ success: false, message: "could not get channel info" }));
             });
     })
 
@@ -68,7 +68,7 @@ router
             })
             .catch(error => {
                 console.error("...ERROR... Channels GET channel users =>", error);
-                res.status(400).send("Channel does not exist.");
+                res.status(400).json(encryptData({ success: false, message: "channel does not exist" }));
             })
     })
     .post((req, res) => {
@@ -83,7 +83,7 @@ router
             })
             .catch(error => {
                 console.error("...ERROR... Channels POST join channel =>", error);
-                res.status(404).send("Could not join channel");
+                res.status(404).json(encryptData({ success: false, message: "could not join channel" }));
             })
     });
 

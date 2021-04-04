@@ -24,7 +24,7 @@ router
             })
             .catch(error => {
                 console.error("...ERROR... Chats GET all messages =>", error);
-                res.status(404).send("Channel doesnt exist.");
+                res.status(404).json(encryptData({ success: false, message: "channel does not exist" }));
             })
     })
     .post((req, res) => {
@@ -53,7 +53,7 @@ router
             })
             .catch(error => {
                 console.error("...ERROR... Chats POST new comment =>", error);
-                res.status(404).send("Could not post comment.");
+                res.status(404).json(encryptData({ success: false, message: "could not create comment" }));
             })
     })
 

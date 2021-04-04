@@ -35,13 +35,13 @@ app.post("/login", (req, res) => {
         .then(user => {
             if (user.attributes.password === String(password)) {
                 let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
-                res.cookie("authToken", token, { sameSite: "strict", maxAge: 604800000 }).json(encryptData({ message: "success" }));
+                res.cookie("authToken", token, { sameSite: "strict", maxAge: 604800000 }).json(encryptData({ success: true, message: "success" }));
             } else {
                 throw new Error("failed login.");
             }
         })
         .catch(error => {
-            res.status(401).send("wrong username or password.");
+            res.status(401).json(encryptData({ success: false, message: "incorrect username or password" }));
         })
 });
 
@@ -53,7 +53,7 @@ app.post("/signup", (req, res) => {
         .where("username", username)
         .fetch()
         .then(user => {
-            res.status(400).send("Username already exists.");
+            res.status(400).json(encryptData({ success: false, message: "username is already in use" }));
         })
         .catch(error => {
             new Users({
@@ -63,7 +63,7 @@ app.post("/signup", (req, res) => {
                 .save()
                 .then(newUser => {
                     let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
-                    res.status(200).cookie("authToken", token, { sameSite: "strict", maxAge: 604800000 }).send("login successful");
+                    res.status(200).cookie("authToken", token, { sameSite: "strict", maxAge: 604800000 }).json(encryptData({ success: true, message: "success" }));
                     new Joined({
                         user_id: newUser.attributes.id,
                         channel_id: 1
@@ -72,7 +72,7 @@ app.post("/signup", (req, res) => {
                 })
                 .catch((error) => {
                     console.error("...Error... Signup POST create user ->", error);
-                    res.status(404).send("Could not create user");
+                    res.status(404).json(encryptData({ success: false, message: "could not create user" }));
                 })
         })
 
