@@ -35,7 +35,7 @@ app.post("/login", (req, res) => {
         .then(user => {
             if (decryptValue(user.attributes.password) === String(password)) {
                 let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
-                res.cookie("authToken", token, { maxAge: 604800000 });
+                res.cookie("authToken", token, { maxAge: 604800000, secure: true });
                 res.status(200).json(encryptData({ success: true, message: "success" }));
             } else {
                 throw new Error("failed login.");
@@ -70,7 +70,7 @@ app.post("/signup", (req, res) => {
                     })
                         .save()
                         .then(() => {
-                            res.cookie("authToken", token, { maxAge: 604800000 });
+                            res.cookie("authToken", token, { maxAge: 604800000, secure: true });
                             res.status(200).json(encryptData({ success: true, message: "success" }));
 
                         })
