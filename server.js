@@ -10,52 +10,60 @@ const chatsRoute = require("./routes/chats");
 const Users = require("./models/users");
 const Joined = require("./models/joined");
 const authorize = require("./middleware/authorize");
+const { decryptData, encryptData, decryptValue, encryptValue } = require("./functions/encryption");
 
 // variables
 const PORT = process.env.PORT;
 const app = express();
 
-app.use(cors());
+// middleware
 app.use(express.json());
+app.use(cors({
+    credentials: true,
+    origin: true
+}));
 app.use(cookieParser());
 
+// enpoints / routes
 app.post("/login", (req, res) => {
-    let username = req.body.username;
-    let password = req.body.password;
-    console.log("REQUEST =>>>>>>>>>>>>>", req.cookies);
+    const data = decryptData(req.body.data);
+    let username = data.username;
+    let password = data.password;
     Users
         .where("username", username)
         .fetch()
         .then(user => {
-            // TODO use user set password
-            if (password === "1") {
+            if (decryptValue(user.attributes.password) === String(password)) {
                 let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
-                res.cookie("authToken", token, { maxAge: 604800000 }).send("login successful");
+                res.cookie("authToken", token, { sameSite: "strict", maxAge: 604800000 }).json(encryptData({ success: true, message: "success" }));
             } else {
                 throw new Error("failed login.");
             }
         })
         .catch(error => {
-            res.status(401).send("wrong username or password.");
+            res.status(401).json(encryptData({ success: false, message: "incorrect username or password" }));
         })
 });
 
 app.post("/signup", (req, res) => {
-    const username = req.body.username;
+    const data = decryptData(req.body.data);
+    const username = data.username;
+    const password = data.password;
     Users
         .where("username", username)
         .fetch()
         .then(user => {
-            res.status(400).send("Username already exists.");
+            res.status(400).json(encryptData({ success: false, message: "username is already in use" }));
         })
         .catch(error => {
             new Users({
-                username: username
+                username: username,
+                password: encryptValue(password)
             })
                 .save()
                 .then(newUser => {
                     let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
-                    res.status(200).cookie("authToken", token, { maxAge: 604800000 }).send("login successful");
+                    res.status(200).cookie("authToken", token, { sameSite: "strict", maxAge: 604800000 }).json(encryptData({ success: true, message: "success" }));
                     new Joined({
                         user_id: newUser.attributes.id,
                         channel_id: 1
@@ -64,7 +72,7 @@ app.post("/signup", (req, res) => {
                 })
                 .catch((error) => {
                     console.error("...Error... Signup POST create user ->", error);
-                    res.status(404).send("Could not create user");
+                    res.status(404).json(encryptData({ success: false, message: "could not create user" }));
                 })
         })
 
