@@ -76,12 +76,12 @@ app.post("/signup", (req, res) => {
                         })
                         .catch((error) => {
                             console.error("...Error... Signup POST create user ->", error);
-                            res.status(404).json(encryptData({ success: false, message: "could not join channel" }));
+                            res.status(404).json({ success: false, message: "could not join channel" });
                         });
                 })
                 .catch((error) => {
                     console.error("...Error... Signup POST create user ->", error);
-                    res.status(404).json(encryptData({ success: false, message: "could not create user" }));
+                    res.status(404).json({ success: false, message: "could not create user" });
                 })
         })
 

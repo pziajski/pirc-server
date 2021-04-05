@@ -25,13 +25,13 @@ router
             })
             .catch(error => {
                 console.error("...ERROR... Chats GET all messages =>", error);
-                res.status(404).json(encryptData({ success: false, message: "channel does not exist" }));
+                res.status(404).json({ success: false, message: "channel does not exist" });
             })
     })
     .post((req, res) => {
         const { user_id, message } = decryptData(req.body.data);
         if (message.length > 256) {
-            return res.status(404).json(encryptData({ success: false, message: "could not create comment" }));
+            return res.status(404).json({ success: false, message: "could not create comment" });
         }
         new Chats({
             user_id: user_id,
@@ -57,7 +57,7 @@ router
             })
             .catch(error => {
                 console.error("...ERROR... Chats POST new comment =>", error);
-                res.status(404).json(encryptData({ success: false, message: "could not create comment" }));
+                res.status(404).json({ success: false, message: "could not create comment" });
             })
     })
 

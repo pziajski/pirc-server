@@ -29,7 +29,7 @@ router
             })
             .catch(error => {
                 console.error("...ERROR... Users GET certain user ->", error);
-                res.status(400).json(encryptData({ success: false, message: "user not found" }));
+                res.status(400).json({ success: false, message: "user not found" });
             })
     })
 
@@ -48,7 +48,7 @@ router
                     })
                     .catch(error => {
                         console.error("...Error... Users GET channels joined ->", error);
-                        res.status(404).json(encryptData({ success: false, message: "could not find user's joined channels" }));
+                        res.status(404).json({ success: false, message: "could not find user's joined channels" });
                     })
             })
 
