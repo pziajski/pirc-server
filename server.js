@@ -15,12 +15,18 @@ const { decryptData, encryptData, decryptValue, encryptValue } = require("./func
 // variables
 const PORT = process.env.PORT;
 const app = express();
+app.set("trust proxy", 1);
+const cookieConfig = {
+    maxAge: 604800000,
+    sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
+    secure: process.env.NODE_ENV === "production"
+};
 
 // middleware
 app.use(express.json());
 app.use(cors({
     credentials: true,
-    origin: true
+    origin: process.env.NODE_ENV === "production" ? [process.env.FRONTEND_APP_URL] : true
 }));
 app.use(cookieParser());
 
@@ -35,7 +41,7 @@ app.post("/login", (req, res) => {
         .then(user => {
             if (decryptValue(user.attributes.password) === String(password)) {
                 let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
-                res.cookie("authToken", token, { maxAge: 604800000, secure: true });
+                res.cookie("authToken", token, cookieConfig);
                 res.status(200).json(encryptData({ success: true, message: "success" }));
             } else {
                 throw new Error("failed login.");
@@ -70,7 +76,7 @@ app.post("/signup", (req, res) => {
                     })
                         .save()
                         .then(() => {
-                            res.cookie("authToken", token, { maxAge: 604800000, secure: true });
+                            res.cookie("authToken", token, cookieConfig);
                             res.status(200).json(encryptData({ success: true, message: "success" }));
 
                         })
