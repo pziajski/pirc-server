@@ -34,11 +34,9 @@ app.post("/login", (req, res) => {
         .fetchAll()
         .then(users => {
             const user = users.models.find(model => decryptValue(model.attributes.username) === username);
-            console.log("user found", user)
-            console.log(decryptValue(user.attributes.password) === password)
             if (decryptValue(user.attributes.password) === password) {
                 const user_id = user.attributes.id;
-                console.log("user id", user_id)
+                console.log("jwt info", { username, user_id })
                 let token = jwt.sign({ username, user_id }, process.env.JWT_SECRET);
                 res.status(200).json(encryptData({ success: true, message: "success", token }));
             } else {
