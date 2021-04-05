@@ -22,7 +22,7 @@ router
             .save()
             .then(newChannel => {
                 Users
-                    .where("username", req.body.username)
+                    .where("id", req.body.user_id)
                     .fetch()
                     .then(user => {
                         new Joined({
