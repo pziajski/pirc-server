@@ -5,7 +5,7 @@ require('dotenv').config();
 const { SQL_DB_HOST, SQL_DB_USER, SQL_DB_PASSWORD, SQL_DB_NAME } = process.env;
 
 module.exports = {
-    developement: {
+    development: {
         client: 'mysql',
         connection: {
             host: SQL_DB_HOST,
