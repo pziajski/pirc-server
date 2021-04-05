@@ -6,9 +6,18 @@ const encryptData = (obj) => {
     }
 }
 
-const decryptData = (str) => {
-    const bytes = CryptoJS.AES.decrypt(str, process.env.HASH_KEY);
+const decryptData = (encryptedStr) => {
+    const bytes = CryptoJS.AES.decrypt(encryptedStr, process.env.HASH_KEY);
     return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 }
 
-module.exports = { encryptData, decryptData };
+const encryptValue = (str) => {
+    return CryptoJS.AES.encrypt(str, process.env.HASH_KEY).toString();
+}
+
+const decryptValue = (encryptedStr) => {
+    const bytes = CryptoJS.AES.decrypt(encryptedStr, process.env.HASH_KEY);
+    return bytes.toString(CryptoJS.enc.Utf8);
+}
+
+module.exports = { encryptData, decryptData, decryptValue, encryptValue };
