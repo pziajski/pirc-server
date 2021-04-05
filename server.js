@@ -15,7 +15,7 @@ const { decryptData, encryptData, decryptValue, encryptValue } = require("./func
 // variables
 const PORT = process.env.PORT;
 const app = express();
-app.set("trust proxy", 1);
+
 // middleware
 app.use(express.json());
 app.use(cors({
@@ -30,11 +30,12 @@ app.post("/login", (req, res) => {
     let username = data.username;
     let password = data.password;
     Users
-        .where("username", username)
-        .fetch()
-        .then(user => {
+        .fetchAll()
+        .then(users => {
+            const user = users.models.find(model => decryptValue(model.attributes.username) === username);
             if (decryptValue(user.attributes.password) === String(password)) {
-                let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
+                const user_id = user.attributes.id;
+                let token = jwt.sign({ username, user_id }, process.env.JWT_SECRET);
                 res.status(200).json(encryptData({ success: true, message: "success", token }));
             } else {
                 throw new Error("failed login.");
@@ -50,19 +51,25 @@ app.post("/signup", (req, res) => {
     const username = data.username;
     const password = data.password;
     Users
-        .where("username", username)
-        .fetch()
-        .then(user => {
-            res.status(400).json({ success: false, message: "username is already in use" });
+        .fetchAll()
+        .then(users => {
+            const user = users.models.find(model => decryptValue(model.attributes.username) === username);
+            if (!!user) {
+                res.status(400).json({ success: false, message: "username is already in use" })
+            } else {
+                throw new Error("user not found");
+            }
         })
         .catch(() => {
             new Users({
-                username: username,
+                username: encryptValue(username),
                 password: encryptValue(password)
             })
                 .save()
                 .then(newUser => {
-                    let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
+                    const user_id = newUser.attributes.id;
+                    const decrypUsername = decryptValue(newUser.attributes.username);
+                    let token = jwt.sign({ username: decrypUsername, user_id }, process.env.JWT_SECRET);
                     new Joined({
                         user_id: newUser.attributes.id,
                         channel_id: 1
@@ -82,7 +89,6 @@ app.post("/signup", (req, res) => {
                     res.status(404).json({ success: false, message: "could not create user" });
                 })
         })
-
 });
 
 app.use(authorize);

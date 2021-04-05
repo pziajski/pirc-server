@@ -6,12 +6,12 @@ module.exports = (req, res, next) => {
     const token = req.cookies.authToken;
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const username = decoded.username;
+        const { user_id } = decoded;
         Users
-            .where("username", username)
+            .where("id", user_id)
             .fetch()
             .then(user => {
-                req.body.username = username;
+                req.body.user_id = user.attributes.id;
                 next();
             })
             .catch(error => {

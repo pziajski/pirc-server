@@ -16,7 +16,7 @@ router
                     const { created_at, message  } = item.attributes;
                     const { username } = item.relations.user.attributes;
                     return {
-                        username: username,
+                        username: decryptValue(username),
                         message: decryptValue(message),
                         created_at: created_at
                     }
@@ -43,7 +43,7 @@ router
                     .where("id", newComment.attributes.user_id)
                     .fetch()
                     .then(user => {
-                        const { username } = user.attributes;
+                        const username = decryptValue(user.attributes.username);
                         const comment = {
                             username,
                             message: decryptValue(message),
