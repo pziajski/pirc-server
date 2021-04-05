@@ -16,17 +16,11 @@ const { decryptData, encryptData, decryptValue, encryptValue } = require("./func
 const PORT = process.env.PORT;
 const app = express();
 app.set("trust proxy", 1);
-const cookieConfig = {
-    maxAge: 604800000,
-    sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax',
-    secure: process.env.NODE_ENV === "production"
-};
-
 // middleware
 app.use(express.json());
 app.use(cors({
     credentials: true,
-    origin: process.env.NODE_ENV === "production" ? [process.env.FRONTEND_APP_URL] : true
+    origin: true
 }));
 app.use(cookieParser());
 
@@ -41,14 +35,13 @@ app.post("/login", (req, res) => {
         .then(user => {
             if (decryptValue(user.attributes.password) === String(password)) {
                 let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
-                res.cookie("authToken", token, cookieConfig);
-                res.status(200).json(encryptData({ success: true, message: "success" }));
+                res.status(200).json(encryptData({ success: true, message: "success", token }));
             } else {
                 throw new Error("failed login.");
             }
         })
         .catch(error => {
-            res.status(401).json(encryptData({ success: false, message: "incorrect username or password" }));
+            res.status(401).json({ success: false, message: "incorrect username or password" });
         })
 });
 
@@ -60,7 +53,7 @@ app.post("/signup", (req, res) => {
         .where("username", username)
         .fetch()
         .then(user => {
-            res.status(400).json(encryptData({ success: false, message: "username is already in use" }));
+            res.status(400).json({ success: false, message: "username is already in use" });
         })
         .catch(() => {
             new Users({
@@ -76,8 +69,7 @@ app.post("/signup", (req, res) => {
                     })
                         .save()
                         .then(() => {
-                            res.cookie("authToken", token, cookieConfig);
-                            res.status(200).json(encryptData({ success: true, message: "success" }));
+                            res.status(200).json(encryptData({ success: true, message: "success", token }));
 
                         })
                         .catch((error) => {
