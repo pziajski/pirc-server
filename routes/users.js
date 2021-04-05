@@ -2,7 +2,7 @@ const express = require("express");
 const Users = require("../models/users");
 const Joined = require("../models/joined");
 const router = express.Router();
-const { encryptData, decryptData } = require("../functions/encryption");
+const { encryptData, encryptValue } = require("../functions/encryption");
 
 router
     .route("/")

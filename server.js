@@ -10,7 +10,7 @@ const chatsRoute = require("./routes/chats");
 const Users = require("./models/users");
 const Joined = require("./models/joined");
 const authorize = require("./middleware/authorize");
-const { decryptData, encryptData } = require("./functions/encryption");
+const { decryptData, encryptData, decryptValue, encryptValue } = require("./functions/encryption");
 
 // variables
 const PORT = process.env.PORT;
@@ -33,7 +33,7 @@ app.post("/login", (req, res) => {
         .where("username", username)
         .fetch()
         .then(user => {
-            if (user.attributes.password === String(password)) {
+            if (decryptValue(user.attributes.password) === String(password)) {
                 let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
                 res.cookie("authToken", token, { sameSite: "strict", maxAge: 604800000 }).json(encryptData({ success: true, message: "success" }));
             } else {
@@ -46,7 +46,7 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/signup", (req, res) => {
-    const data = JSON.parse(decryptData(req.body.data));
+    const data = decryptData(req.body.data);
     const username = data.username;
     const password = data.password;
     Users
@@ -58,7 +58,7 @@ app.post("/signup", (req, res) => {
         .catch(error => {
             new Users({
                 username: username,
-                password: String(password)
+                password: encryptValue(password)
             })
                 .save()
                 .then(newUser => {
