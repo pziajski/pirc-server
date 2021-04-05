@@ -2,7 +2,7 @@ const express = require("express");
 const Users = require("../models/users");
 const Joined = require("../models/joined");
 const router = express.Router();
-const { encryptData, encryptValue } = require("../functions/encryption");
+const { encryptData, decryptValue } = require("../functions/encryption");
 
 router
     .route("/")
@@ -18,12 +18,12 @@ router
     .route("/userInfo")
     .get((req, res) => {
         Users
-            .where("username", req.body.username)
+            .where("id", req.body.user_id)
             .fetch()
             .then(user => {
                 const userInfo = {
                     id: user.attributes.id,
-                    username: user.attributes.username
+                    username: decryptValue(user.attributes.username)
                 }
                 res.status(200).json(encryptData(userInfo));
             })
@@ -37,7 +37,7 @@ router
     .route("/channels")
     .get((req, res) => {
         Users
-            .where("username", req.body.username)
+            .where("id", req.body.user_id)
             .fetch()
             .then(user => {
                 Joined
