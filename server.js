@@ -64,13 +64,20 @@ app.post("/signup", (req, res) => {
                 .save()
                 .then(newUser => {
                     let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
-                    res.cookie("authToken", token, { maxAge: 604800000 });
-                    res.status(200).json(encryptData({ success: true, message: "success" }));
                     new Joined({
                         user_id: newUser.attributes.id,
                         channel_id: 1
                     })
                         .save()
+                        .then(() => {
+                            res.cookie("authToken", token, { maxAge: 604800000 });
+                            res.status(200).json(encryptData({ success: true, message: "success" }));
+
+                        })
+                        .catch((error) => {
+                            console.error("...Error... Signup POST create user ->", error);
+                            res.status(404).json(encryptData({ success: false, message: "could not join channel" }));
+                        });
                 })
                 .catch((error) => {
                     console.error("...Error... Signup POST create user ->", error);
