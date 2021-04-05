@@ -3,7 +3,7 @@ const Users = require("../models/users");
 
 module.exports = (req, res, next) => {
     const token = req.cookies.authToken;
-    console.log("token", token)
+    console.log("auth token", token)
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user_id = decoded.user_id;

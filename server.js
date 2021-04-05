@@ -38,6 +38,7 @@ app.post("/login", (req, res) => {
                 const user_id = user.attributes.id;
                 console.log("jwt info", { username, user_id })
                 let token = jwt.sign({ username, user_id }, process.env.JWT_SECRET);
+                console.log("login token", token)
                 res.status(200).json(encryptData({ success: true, message: "success", token }));
             } else {
                 throw new Error("failed login.");
