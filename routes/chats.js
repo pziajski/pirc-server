@@ -2,7 +2,8 @@ const express = require("express");
 const Chats = require("../models/chats");
 const Users = require("../models/users");
 const router = express.Router();
-const { encryptData, decryptData } = require("../functions/encryption");
+const { encryptData, decryptData, encryptValue, decryptValue } = require("../functions/encryption");
+const { compressString, decompressString } = require("../functions/compression");
 
 router
     .route("/:channelID")
@@ -15,9 +16,9 @@ router
                     const { created_at, message  } = item.attributes;
                     const { username } = item.relations.user.attributes;
                     return {
-                        username,
-                        message,
-                        created_at
+                        username: username,
+                        message: message,
+                        created_at: created_at
                     }
                 });
                 res.status(200).json(encryptData(messages));
@@ -29,11 +30,14 @@ router
     })
     .post((req, res) => {
         const { user_id, message } = decryptData(req.body.data);
+        if (message.length > 256) {
+            return res.status(404).json(encryptData({ success: false, message: "could not create comment" }));
+        }
         new Chats({
-            user_id,
+            user_id: user_id,
             channel_id: req.params.channelID,
             created_at: new Date(),
-            message
+            message: message
         })
             .save()
             .then(newComment => {
@@ -45,8 +49,8 @@ router
                         const { username } = user.attributes;
                         const comment = {
                             username,
-                            message,
-                            created_at
+                            message: message,
+                            created_at: created_at
                         }
                         res.status(200).json(encryptData(comment));
                     })
