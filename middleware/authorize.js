@@ -5,8 +5,8 @@ module.exports = (req, res, next) => {
     const token = req.cookies.authToken;
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const { user_id } = decoded;
-        console.log("decoded jwt", user_id)
+        const user_id = decoded.user_id;
+        console.log(decoded)
         Users
             .where("id", user_id)
             .fetch()
