@@ -15,13 +15,12 @@ const { decryptData, encryptData, decryptValue, encryptValue } = require("./func
 // variables
 const PORT = process.env.PORT;
 const app = express();
-app.set("trust proxy", 1);
 
 // middleware
 app.use(express.json());
 app.use(cors({
     credentials: true,
-    origin: process.env.NODE_ENV === "production" ? [process.env.FRONTEND_APP_URL] : true
+    origin: true
 }));
 app.use(cookieParser());
 
@@ -36,9 +35,7 @@ app.post("/login", (req, res) => {
             const user = users.models.find(model => decryptValue(model.attributes.username) === username);
             if (decryptValue(user.attributes.password) === password) {
                 const user_id = user.attributes.id;
-                console.log("jwt info", { username, user_id })
                 let token = jwt.sign({ username, user_id }, process.env.JWT_SECRET);
-                console.log("login token", token)
                 res.status(200).json(encryptData({ success: true, message: "success", token }));
             } else {
                 throw new Error("failed login.");
@@ -79,7 +76,6 @@ app.post("/signup", (req, res) => {
                     })
                         .save()
                         .then(() => {
-                            console.log("signed up user", decrypUsername, user_id);
                             res.status(200).json(encryptData({ success: true, message: "success", token }));
 
                         })
