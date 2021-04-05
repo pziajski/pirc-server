@@ -56,7 +56,7 @@ app.post("/signup", (req, res) => {
         .then(user => {
             res.status(400).json(encryptData({ success: false, message: "username is already in use" }));
         })
-        .catch(error => {
+        .catch(() => {
             new Users({
                 username: username,
                 password: encryptValue(password)
