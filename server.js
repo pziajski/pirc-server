@@ -15,12 +15,13 @@ const { decryptData, encryptData, decryptValue, encryptValue } = require("./func
 // variables
 const PORT = process.env.PORT;
 const app = express();
+app.set("trust proxy", 1);
 
 // middleware
 app.use(express.json());
 app.use(cors({
     credentials: true,
-    origin: true
+    origin: process.env.NODE_ENV === "production" ? [process.env.FRONTEND_APP_URL] : true
 }));
 app.use(cookieParser());
 
