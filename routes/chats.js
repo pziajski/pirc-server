@@ -37,7 +37,7 @@ router
             user_id: user_id,
             channel_id: req.params.channelID,
             created_at: new Date(),
-            message: message
+            message: encryptValue(message)
         })
             .save()
             .then(newComment => {
@@ -49,7 +49,7 @@ router
                         const { username } = user.attributes;
                         const comment = {
                             username,
-                            message: message,
+                            message: decryptValue(message),
                             created_at: created_at
                         }
                         res.status(200).json(encryptData(comment));
