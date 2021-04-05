@@ -36,6 +36,7 @@ app.post("/login", (req, res) => {
             if (decryptValue(user.attributes.password) === String(password)) {
                 const user_id = user.attributes.id;
                 let token = jwt.sign({ username, user_id }, process.env.JWT_SECRET);
+                console.log("login user", user_id)
                 res.status(200).json(encryptData({ success: true, message: "success", token }));
             } else {
                 throw new Error("failed login.");
@@ -76,6 +77,7 @@ app.post("/signup", (req, res) => {
                     })
                         .save()
                         .then(() => {
+                            console.log("signed up user", decrypUsername, user_id);
                             res.status(200).json(encryptData({ success: true, message: "success", token }));
 
                         })

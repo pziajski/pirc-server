@@ -1,16 +1,17 @@
 const jwt = require("jsonwebtoken");
 const Users = require("../models/users");
-const { encryptValue } = require("../functions/encryption");
 
 module.exports = (req, res, next) => {
     const token = req.cookies.authToken;
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const { user_id } = decoded;
+        console.log("decoded jwt", user_id)
         Users
             .where("id", user_id)
             .fetch()
             .then(user => {
+                console.log("user found", user.attributes)
                 req.body.user_id = user.attributes.id;
                 next();
             })
