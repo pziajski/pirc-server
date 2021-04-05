@@ -35,7 +35,8 @@ app.post("/login", (req, res) => {
         .then(user => {
             if (decryptValue(user.attributes.password) === String(password)) {
                 let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
-                res.cookie("authToken", token, { sameSite: "strict", maxAge: 604800000 }).json(encryptData({ success: true, message: "success" }));
+                res.cookie("authToken", token, { sameSite: "strict", maxAge: 604800000 });
+                res.status(200).json(encryptData({ success: true, message: "success" }));
             } else {
                 throw new Error("failed login.");
             }
@@ -63,7 +64,8 @@ app.post("/signup", (req, res) => {
                 .save()
                 .then(newUser => {
                     let token = jwt.sign({ username: username }, process.env.JWT_SECRET);
-                    res.status(200).cookie("authToken", token, { sameSite: "strict", maxAge: 604800000 }).json(encryptData({ success: true, message: "success" }));
+                    res.cookie("authToken", token, { sameSite: "strict", maxAge: 604800000 });
+                    res.status(200).json(encryptData({ success: true, message: "success" }));
                     new Joined({
                         user_id: newUser.attributes.id,
                         channel_id: 1
