@@ -17,7 +17,7 @@ router
                     const { username } = item.relations.user.attributes;
                     return {
                         username: username,
-                        message: message,
+                        message: decryptValue(message),
                         created_at: created_at
                     }
                 });
@@ -30,9 +30,6 @@ router
     })
     .post((req, res) => {
         const { user_id, message } = decryptData(req.body.data);
-        if (message.length > 256) {
-            return res.status(404).json({ success: false, message: "could not create comment" });
-        }
         new Chats({
             user_id: user_id,
             channel_id: req.params.channelID,
