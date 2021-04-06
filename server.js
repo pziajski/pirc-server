@@ -22,7 +22,7 @@ app.use(cors({
     credentials: true,
     origin: process.env.NODE_ENV === "production" ? "https://pirc.netlify.app" : true,
     methods: [ "GET", "POST" ],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Access-Control-Allow-Headers', 'https://pirc.netlify.app']
 }));
 app.use(cookieParser());
 
