@@ -5,6 +5,7 @@ const { encryptResponse } = require("../functions/encryption");
 module.exports = (req, res, next) => {
     const token = req.cookies.authToken;
     console.log("cookies", req.cookies)
+    console.log("token", req.cookies.authToken)
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user_id = decoded.user_id;
