@@ -18,10 +18,11 @@ const app = express();
 
 // middleware
 app.use(express.json());
+
+app.enable('trust proxy');
 app.use(cors({
     credentials: true,
-    origin: process.env.NODE_ENV === "production" ? "https://pirc.netlify.app" : true,
-    methods: [ "GET", "POST" ]
+    origin: process.env.NODE_ENV === "production" ? "https://pirc.netlify.app" : true
 }));
 app.use(cookieParser());
 
