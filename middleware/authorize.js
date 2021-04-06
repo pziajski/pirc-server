@@ -6,7 +6,6 @@ module.exports = (req, res, next) => {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user_id = decoded.user_id;
-        console.log("decoded", decoded)
         Users
             .where("id", user_id)
             .fetch()
