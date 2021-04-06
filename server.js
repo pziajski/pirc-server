@@ -10,7 +10,7 @@ const chatsRoute = require("./routes/chats");
 const Users = require("./models/users");
 const Joined = require("./models/joined");
 const authorize = require("./middleware/authorize");
-const { decryptData, encryptData, decryptValue, encryptValue } = require("./functions/encryption");
+const { decryptData, encryptData, decryptValue, encryptValue, encryptResponse } = require("./functions/encryption");
 
 // variables
 const PORT = process.env.PORT;
@@ -36,13 +36,13 @@ app.post("/login", (req, res) => {
             if (decryptValue(user.attributes.password) === password) {
                 const user_id = user.attributes.id;
                 let token = jwt.sign({ username, user_id }, process.env.JWT_SECRET);
-                res.status(200).json(encryptData({ success: true, message: "success", token }));
+                encryptResponse(res, 200, { success: true, message: "user logged in", token });
             } else {
                 throw new Error("failed login.");
             }
         })
         .catch(error => {
-            res.status(401).json({ success: false, message: "incorrect username or password" });
+            encryptResponse(res, 401, { success: false, message: "incorrect username or password" });
         })
 });
 
@@ -55,7 +55,7 @@ app.post("/signup", (req, res) => {
         .then(users => {
             const user = users.models.find(model => decryptValue(model.attributes.username) === username);
             if (!!user) {
-                res.status(400).json({ success: false, message: "username is already in use" })
+                encryptResponse(res, 400, { success: false, message: "username is already in use" });
             } else {
                 throw new Error("user not found");
             }
@@ -76,17 +76,17 @@ app.post("/signup", (req, res) => {
                     })
                         .save()
                         .then(() => {
-                            res.status(200).json(encryptData({ success: true, message: "success", token }));
+                            encryptResponse(res, 200, { success: true, message: "success", token });
 
                         })
                         .catch((error) => {
                             console.error("...Error... Signup POST create user ->", error);
-                            res.status(404).json({ success: false, message: "could not join channel" });
+                            encryptResponse(res, 404, { success: false, message: "could not join channel" });
                         });
                 })
                 .catch((error) => {
                     console.error("...Error... Signup POST create user ->", error);
-                    res.status(404).json({ success: false, message: "could not create user" });
+                    encryptResponse(res, 404, { success: false, message: "could not create user" });
                 })
         })
 });

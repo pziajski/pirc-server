@@ -2,8 +2,7 @@ const express = require("express");
 const Chats = require("../models/chats");
 const Users = require("../models/users");
 const router = express.Router();
-const { encryptData, decryptData, encryptValue, decryptValue } = require("../functions/encryption");
-const { compressString, decompressString } = require("../functions/compression");
+const { encryptData, decryptData, encryptValue, decryptValue, encryptResponse } = require("../functions/encryption");
 
 router
     .route("/:channelID")
@@ -21,11 +20,11 @@ router
                         created_at: created_at
                     }
                 });
-                res.status(200).json(encryptData(messages));
+                encryptResponse(res, 200, messages);
             })
             .catch(error => {
                 console.error("...ERROR... Chats GET all messages =>", error);
-                res.status(404).json({ success: false, message: "channel does not exist" });
+                encryptResponse(res, 404, { success: false, message: "channel does not exist" });
             })
     })
     .post((req, res) => {
@@ -49,12 +48,12 @@ router
                             message: decryptValue(message),
                             created_at: created_at
                         }
-                        res.status(200).json(encryptData(comment));
+                        encryptResponse(res, 200, comment);
                     })
             })
             .catch(error => {
                 console.error("...ERROR... Chats POST new comment =>", error);
-                res.status(404).json({ success: false, message: "could not create comment" });
+                encryptResponse(res, 404, { success: false, message: "could not create comment" });
             })
     })
 
