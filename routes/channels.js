@@ -3,7 +3,7 @@ const Channels = require("../models/channels");
 const Joined = require("../models/joined");
 const Users = require("../models/users");
 const router = express.Router();
-const { encryptData, decryptData } = require("../functions/encryption");
+const { encryptData, decryptData, encryptResponse } = require("../functions/encryption");
 
 router
     .route("/")
@@ -11,7 +11,7 @@ router
         Channels
             .fetchAll()
             .then(channels => {
-                res.status(200).json(encryptData(channels));
+                encryptResponse(res, 200, channels);
             });
     })
     .post((req, res) => {
@@ -31,13 +31,13 @@ router
                         })
                             .save()
                             .then(() => {
-                                res.status(201).json(encryptData(newChannel));
+                                encryptResponse(res, 201, newChannel);
                             })
                     })
             })
             .catch(() => {
                 console.error("...ERROR... Channels POST create new channel =>", error);
-                res.status(404).json({ success: false, message: "could not create channel" });
+                encryptResponse(res, 404, { success: false, message: "could not create channel" });
             });
     });
 
@@ -48,11 +48,11 @@ router
             .where("id", req.params.id)
             .fetch()
             .then(channelData => {
-                res.status(200).json(encryptData(channelData));
+                encryptResponse(res, 200, channelData);
             })
             .catch((error) => {
                 console.error("...ERROR... Channels GET channel info =>", error);
-                res.status(404).json({ success: false, message: "could not get channel info" });
+                encryptResponse(res, 404, { success: false, message: "could not get channel info" });
             });
     })
 
@@ -64,11 +64,11 @@ router
             .where("channel_id", req.params.id)
             .fetchAll()
             .then(users => {
-                res.status(200).json(encryptData(users))
+                encryptResponse(res, 200, users);
             })
             .catch(error => {
                 console.error("...ERROR... Channels GET channel users =>", error);
-                res.status(400).json({ success: false, message: "channel does not exist" });
+                encryptResponse(res, 400, { success: false, message: "channel does not exist" });
             })
     })
     .post((req, res) => {
@@ -79,11 +79,11 @@ router
         })
             .save()
             .then(joinedChannel => {
-                res.status(201).json(encryptData(joinedChannel));
+                encryptResponse(res, 201, joinedChannel);
             })
             .catch(error => {
                 console.error("...ERROR... Channels POST join channel =>", error);
-                res.status(404).json({ success: false, message: "could not join channel" });
+                encryptResponse(res, 404, { success: false, message: "could not join channel" });
             })
     });
 

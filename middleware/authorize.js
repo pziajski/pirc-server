@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const Users = require("../models/users");
+const { encryptResponse } = require("../functions/encryption");
 
 module.exports = (req, res, next) => {
     const token = req.cookies.authToken;
@@ -17,6 +18,6 @@ module.exports = (req, res, next) => {
                 throw new Error("User Not found");
             })
     } catch (error) {
-        res.status(401).json({ success: false, message: error.message });
+        encryptResponse(res, 401, { success: false, message: error.message });
     }
 }

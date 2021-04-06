@@ -2,7 +2,7 @@ const express = require("express");
 const Users = require("../models/users");
 const Joined = require("../models/joined");
 const router = express.Router();
-const { encryptData, decryptValue } = require("../functions/encryption");
+const { encryptData, decryptValue, encryptResponse } = require("../functions/encryption");
 
 router
     .route("/")
@@ -10,7 +10,7 @@ router
         Users
             .fetchAll()
             .then(users => {
-                res.status(200).json(encryptData(users));
+                encryptResponse(res, 200, users);
             });
     });
 
@@ -25,11 +25,11 @@ router
                     id: user.attributes.id,
                     username: decryptValue(user.attributes.username)
                 }
-                res.status(200).json(encryptData(userInfo));
+                encryptResponse(res, 200, userInfo);
             })
             .catch(error => {
                 console.error("...ERROR... Users GET certain user ->", error);
-                res.status(400).json({ success: false, message: "user not found" });
+                encryptResponse(res, 400, { success: false, message: "user not found" });
             })
     })
 
@@ -44,11 +44,11 @@ router
                     .where("user_id", user.attributes.id)
                     .fetchAll({ withRelated: ["channel"] })
                     .then(channelsJoined => {
-                        res.status(200).json(encryptData(channelsJoined));
+                        encryptResponse(res, 200, channelsJoined);
                     })
                     .catch(error => {
                         console.error("...Error... Users GET channels joined ->", error);
-                        res.status(404).json({ success: false, message: "could not find user's joined channels" });
+                        encryptResponse(res, 404, { success: false, message: "could not find user's joined channels" });
                     })
             })
 

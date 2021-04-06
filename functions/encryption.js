@@ -20,4 +20,8 @@ const decryptValue = (encryptedStr) => {
     return bytes.toString(CryptoJS.enc.Utf8);
 }
 
-module.exports = { encryptData, decryptData, decryptValue, encryptValue };
+const encryptResponse = (res, statusCode, data = {}) => {
+    return res.status(statusCode).json(encryptData(data));
+}
+
+module.exports = { encryptData, decryptData, decryptValue, encryptValue, encryptResponse };
