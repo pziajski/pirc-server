@@ -3,8 +3,8 @@ const Users = require("../models/users");
 const { encryptResponse } = require("../functions/encryption");
 
 module.exports = (req, res, next) => {
-    const token = req.cookies.authToken;
     try {
+        const token = req.headers.token;
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user_id = decoded.user_id;
         Users
